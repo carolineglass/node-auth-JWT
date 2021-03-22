@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const { isEmail } = require('validator');
-
+const bcrypt = require('bcrypt')
 
 //defining user document in db
 const userSchema = new mongoose.Schema({
@@ -20,15 +20,16 @@ const userSchema = new mongoose.Schema({
 
 //fire a func after(post) doc saved to db
 // after 'save' event, fire second arg func
-userSchema.post('save', function(doc, next) {
-    console.log('new user was created and saved', doc)
-    next();
-})
+// userSchema.post('save', function(doc, next) {
+//     console.log('new user was created and saved', doc)
+//     next();
+// })
 
 //fire a func before(pre) doc saved to db
 //using 'this' keyword, so not using an arrow func
-userSchema.pre('save', function(next) {
-    console.log('user about to be created', this);
+userSchema.pre('save', async function(next) {
+    const salt = await bcrypt.genSalt();
+    this.password = await bcrypt.hash(this.password, salt)
     next();
 })
 
