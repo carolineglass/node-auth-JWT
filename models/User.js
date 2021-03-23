@@ -18,13 +18,6 @@ const userSchema = new mongoose.Schema({
     }
 });
 
-//fire a func after(post) doc saved to db
-// after 'save' event, fire second arg func
-// userSchema.post('save', function(doc, next) {
-//     console.log('new user was created and saved', doc)
-//     next();
-// })
-
 //fire a func before(pre) doc saved to db
 //using 'this' keyword, so not using an arrow func
 userSchema.pre('save', async function(next) {
@@ -32,6 +25,21 @@ userSchema.pre('save', async function(next) {
     this.password = await bcrypt.hash(this.password, salt)
     next();
 })
+
+//static method to login user
+userSchema.statics.login = async function(email, password) {
+    const user = await this.findOne({ email });
+    if (user) {
+        //method to compare plain text password from form with hashed pass in db
+        //returns true or false
+        const auth = await bcrypt.compare(password, user.password);
+        if (auth) {
+            return user;
+        }
+        throw Error('incorrect password')
+    }
+    throw Error('incorrect email')
+}
 
 // must be the singular db collection name ex: user to collection users
 // second arg is the schema 
