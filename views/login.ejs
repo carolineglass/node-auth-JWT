@@ -36,7 +36,6 @@
             body: JSON.stringify({ email, password })
             })
             const data = await res.json();
-            console.log(data)
             if (data.errors) {
                 emailErr.textContent = data.errors.email
                 passwordErr.textContent = data.errors.password
